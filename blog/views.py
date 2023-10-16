@@ -1,17 +1,25 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
+from django.views.generic import ListView, DetailView
 from .models import Post, Comment
 from .forms import PostForm, CommentForm
 from django.contrib.auth.decorators import login_required
 
 
-def post_list(request):
-    posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
-    return render(request, 'blog/post_list.html', {'posts': posts})
+class PostListView(ListView):
+    model = Post
+    context_object_name = "posts"
+    queryset = Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
+    template_name = 'post_list.html'
 
-def post_detail(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    return render(request, 'blog/post_detail.html', {'post': post})
+
+class PostDetailView(DetailView):
+    queryset = Post.objects.all()
+    template_name = 'blog/post_detail.html'
+    context_object_name = "post"
+    def get_object(self):
+        obj = super().get_object()
+        return obj
 
 @login_required
 def post_new(request):
