@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 
 class PostListView(ListView):
     model = Post
-    paginate_by = 2
+    paginate_by = 3
     queryset = Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
     template_name = 'post_list.html'
 
