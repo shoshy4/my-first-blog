@@ -18,14 +18,11 @@ class PostListView(ListView):
         return Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
 
 
-
 class PostDetailView(DetailView):
     queryset = Post.objects.all()
     template_name = 'blog/post_detail.html'
     context_object_name = "post"
-    def get_object(self):
-        obj = super().get_object()
-        return obj
+
 
 class PostNewView(View):
     form_class = PostForm
@@ -33,7 +30,7 @@ class PostNewView(View):
     template_name = "blog/post_edit.html"
 
     def get(self, request):
-        form = self.form_class(initial=self.initial)
+        form = self.form_class()
         return render(request, self.template_name, {"form": form})
 
     def post(self, request):
@@ -44,6 +41,7 @@ class PostNewView(View):
             post.save()
             return redirect('post_detail', pk=post.pk)
         return render(request, self.template_name, {"form": form})
+
 
 class PostEditView(View):
     form_class = PostForm
@@ -56,13 +54,14 @@ class PostEditView(View):
 
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
-        form = PostForm(request.POST, instance=post)
+        form = self.form_class(request.POST, instance=post)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
             post.save()
             return redirect('post_detail', pk=post.pk)
         return render(request, self.template_name, {"form": form})
+
 
 class PostDraftListView(ListView):
     model = Post
@@ -71,17 +70,20 @@ class PostDraftListView(ListView):
     queryset = Post.objects.filter(published_date__isnull=True).order_by('-created_date')
     template_name = 'blog/post_draft_list.html'
 
+
 class PostPublishView(View):
-    def get(self, request,pk):
+    def get(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
         post.publish()
         return redirect('post_detail', pk=pk)
 
+
 class PostRemoveView(View):
-    def get(self, request,pk):
+    def get(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
         post.delete()
         return redirect('post_list')
+
 
 class CommentFormView(View):
     form_class = CommentForm
@@ -101,14 +103,16 @@ class CommentFormView(View):
             return redirect('post_detail', pk=pk)
         return render(request, self.template_name, {"form": form})
 
+
 class CommentRemoveView(View):
-    def get(self, request,pk):
+    def get(self, request, pk):
         comment = get_object_or_404(Comment, pk=pk)
         comment.delete()
         return redirect('post_detail', pk=comment.post.pk)
 
+
 class CommentApproveView(View):
-    def get(self, request,pk):
+    def get(self, request, pk):
         comment = get_object_or_404(Comment, pk=pk)
         comment.approve()
         return redirect('post_detail', pk=comment.post.pk)

@@ -1,9 +1,12 @@
 from django.urls import path
-from . import views
+from .views_api import PostCreateList, PostUpdateDetailRemove, PostPublish, \
+    CommentApprove, CommentUpdateRemoveDetail, CommentListCreate
 from .views import PostListView, PostDetailView, PostDraftListView, CommentFormView, PostNewView, PostEditView, \
     CommentApproveView, CommentRemoveView, PostRemoveView, PostPublishView
 from django.views.generic import TemplateView
-
+from django.urls import path
+from rest_framework.urlpatterns import format_suffix_patterns
+from django.urls import path
 
 urlpatterns = [
     path('', PostListView.as_view(), name='post_list'),
@@ -16,4 +19,11 @@ urlpatterns = [
     path('post/<int:pk>/comment/', CommentFormView.as_view(), name='add_comment_to_post'),
     path('comment/<int:pk>/approve/', CommentApproveView.as_view(), name='comment_approve'),
     path('comment/<int:pk>/remove/', CommentRemoveView.as_view(), name='comment_remove'),
+    path('blog/', PostCreateList.as_view()),
+    path('blog/drafts/', PostDraftListView.as_view()),
+    path('blog/post/<int:pk>/', PostUpdateDetailRemove.as_view()),
+    path('blog/post/<int:pk>/publish', PostPublish.as_view()),
+    path('blog/comment/<int:pk>/', CommentUpdateRemoveDetail.as_view()),
+    path('blog/comment/<int:pk>/approve', CommentApprove.as_view()),
+    path('blog/comment/', CommentListCreate.as_view()),
 ]
