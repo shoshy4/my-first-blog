@@ -3,6 +3,8 @@ from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
+from rest_framework.pagination import PageNumberPagination
+
 from .models import Post, Comment
 from .permissions import IsOwnerOrReadOnly, IsPostOwnerOrReadOnly
 from .serializers import PostSerializer, CommentSerializer
@@ -16,6 +18,7 @@ from django.contrib.auth import authenticate, login
 class PostCreateList(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = PostSerializer
+    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         return Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
@@ -35,6 +38,7 @@ class PostCreateList(generics.ListCreateAPIView):
 
 class PostDraftList(generics.ListAPIView):
     serializer_class = PostSerializer
+    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         return Post.objects.filter(published_date__isnull=True).order_by('-created_date')
@@ -66,7 +70,6 @@ class PostPublish(generics.UpdateAPIView):
 
 
 class CommentUpdateRemoveDetail(generics.RetrieveUpdateDestroyAPIView):
-
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsPostOwnerOrReadOnly]
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -93,6 +96,7 @@ class CommentApprove(generics.UpdateAPIView):
 
 class CommentListCreate(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
+    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         return Comment.objects.order_by('created_date')
@@ -108,7 +112,4 @@ class CommentListCreate(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         post = get_object_or_404(Post, pk=self.request.data["post"])
         serializer.save(post_owner=post.owner)
-
-
-
 
