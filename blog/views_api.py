@@ -77,7 +77,9 @@ class CommentUpdateRemoveDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class CommentApprove(generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsPostOwnerOrReadOnly]
-    queryset = Comment.objects.all()
+
+    def get_queryset(self):
+        return Comment.objects.filter(post_id=self.kwargs.get('post_pk'))
     serializer_class = CommentSerializer
 
     def update(self, request, *args, **kwargs):
@@ -99,8 +101,22 @@ class CommentListCreate(generics.ListCreateAPIView):
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        return Comment.objects.order_by('created_date')
+        queryset = Comment.objects.filter(post_id=self.kwargs.get('post_pk')).order_by('created_date')
+        post_owner = get_object_or_404(Post, pk=self.kwargs.get('post_pk'))
+        if self.request.user.id != post_owner.owner_id:
+            return queryset.filter(approved_comment=True)
+        else:
+            return queryset
 
+    """
+    def get_queryset(self):
+        queryset = Comment.objects.filter(post_id=self.kwargs.get('post_pk')).order_by('created_date')
+        post_owner = queryset.values_list('post_owner', flat=True)[0]
+        if self.request.user.id != post_owner:
+            return queryset.filter(approved_comment=True)
+        else:
+            return queryset
+     """
     def create(self, request, *args, **kwargs):
         data = request.data
         serializer = self.get_serializer(data=data)

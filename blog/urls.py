@@ -22,8 +22,8 @@ urlpatterns = [
     path('blog/post/', PostCreateList.as_view()),
     path('blog/drafts/', PostDraftListView.as_view()),
     path('blog/post/<int:pk>/', PostUpdateDetailRemove.as_view()),
-    path('blog/post/<int:pk>/publish', PostPublish.as_view()),
-    path('blog/comment/<int:pk>/', CommentUpdateRemoveDetail.as_view()),
-    path('blog/comment/<int:pk>/approve', CommentApprove.as_view()),
+    path('blog/drafts/<int:pk>/publish', PostPublish.as_view()),
+    path('blog/post/<int:post_pk>/comment/<int:pk>/', CommentUpdateRemoveDetail.as_view()),
+    path('blog/post/<int:post_pk>/comment/<int:pk>/approve', CommentApprove.as_view()),
     path('blog/post/<int:post_pk>/comment/', CommentListCreate.as_view()),
 ]
