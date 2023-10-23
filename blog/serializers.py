@@ -1,6 +1,8 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 from .models import Post, Comment
-from django.contrib.auth.models import User
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -18,3 +20,12 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ['post', 'author', 'text', 'created_date', 'approved_comment', 'post_owner']
 
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        token['name'] = user.username
+
+        return token

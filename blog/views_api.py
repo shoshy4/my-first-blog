@@ -112,4 +112,3 @@ class CommentListCreate(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         post = get_object_or_404(Post, pk=self.request.data["post"])
         serializer.save(post_owner=post.owner)
-
