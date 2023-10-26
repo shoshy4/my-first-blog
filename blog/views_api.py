@@ -57,7 +57,8 @@ class PostPublish(generics.UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         data = request.data
-        data["published_date"] = timezone.now()
+        if "published_date" not in data:
+            data["published_date"]=timezone.now()
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
